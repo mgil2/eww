@@ -29,46 +29,46 @@ pub struct Opt {
 #[clap(version, about)]
 struct RawOpt {
     /// Write out debug logs. (To read the logs, run `eww logs`).
-    #[arg(long = "debug", global = true)]
+    #[clap(long = "debug", global = true)]
     log_debug: bool,
 
     /// override path to configuration directory (directory that contains eww.yuck and eww.scss)
-    #[arg(short, long, global = true)]
+    #[clap(short, long, global = true)]
     config: Option<std::path::PathBuf>,
 
     /// Watch the log output after executing the command
-    #[arg(long = "logs", global = true)]
+    #[clap(long = "logs", global = true)]
     show_logs: bool,
 
     /// Avoid daemonizing eww.
-    #[arg(long = "no-daemonize", global = true)]
+    #[clap(long = "no-daemonize", global = true)]
     no_daemonize: bool,
 
     /// Restart the daemon completely before running the command
-    #[arg(long = "restart", global = true)]
+    #[clap(long = "restart", global = true)]
     restart: bool,
 
-    #[command(subcommand)]
+    #[clap(subcommand)]
     action: Action,
 }
 
 #[derive(Subcommand, Debug, Serialize, Deserialize, PartialEq)]
 pub enum Action {
     /// Start the Eww daemon.
-    #[command(name = "daemon", alias = "d")]
+    #[clap(name = "daemon", alias = "d")]
     Daemon,
 
-    #[command(flatten)]
+    #[clap(flatten)]
     ClientOnly(ActionClientOnly),
 
-    #[command(flatten)]
+    #[clap(flatten)]
     WithServer(ActionWithServer),
 }
 
 #[derive(Subcommand, Debug, Serialize, Deserialize, PartialEq, Eq)]
 pub enum ActionClientOnly {
     /// Print and watch the eww logs
-    #[command(name = "logs")]
+    #[clap(name = "logs")]
     Logs,
 }
 
@@ -82,12 +82,12 @@ pub enum ActionWithServer {
     #[clap(name = "update", alias = "u")]
     Update {
         /// variable_name="new_value"-pairs that will be updated
-        #[arg(value_parser = parse_var_update_arg)]
+        #[clap(parse(try_from_str = parse_var_update_arg))]
         mappings: Vec<(VarName, DynVal)>,
     },
 
     /// Open the GTK debugger
-    #[command(name = "inspector", alias = "debugger")]
+    #[clap(name = "inspector", alias = "debugger")]
     OpenInspector,
 
     /// Open a window
@@ -97,78 +97,78 @@ pub enum ActionWithServer {
         window_name: String,
 
         /// The identifier of the monitor the window should open on
-        #[arg(long)]
+        #[clap(long)]
         screen: Option<MonitorIdentifier>,
 
         /// The position of the window, where it should open. (i.e.: 200x100)
-        #[arg(short, long)]
+        #[clap(short, long)]
         pos: Option<Coords>,
 
         /// The size of the window to open (i.e.: 200x100)
-        #[arg(short, long)]
+        #[clap(short, long)]
         size: Option<Coords>,
 
         /// Sidepoint of the window, formatted like "top right"
-        #[arg(short, long)]
+        #[clap(short, long)]
         anchor: Option<AnchorPoint>,
 
         /// If the window is already open, close it instead
-        #[arg(long = "toggle")]
+        #[clap(long = "toggle")]
         should_toggle: bool,
     },
 
     /// Open multiple windows at once.
     /// NOTE: This will in the future be part of eww open, and will then be removed.
-    #[command(name = "open-many")]
+    #[clap(name = "open-many")]
     OpenMany {
         windows: Vec<String>,
 
         /// If a window is already open, close it instead
-        #[arg(long = "toggle")]
+        #[clap(long = "toggle")]
         should_toggle: bool,
     },
 
     /// Close the given windows
-    #[command(name = "close", alias = "c")]
+    #[clap(name = "close", alias = "c")]
     CloseWindows { windows: Vec<String> },
 
     /// Reload the configuration
-    #[command(name = "reload", alias = "r")]
+    #[clap(name = "reload", alias = "r")]
     Reload,
 
     /// Kill the eww daemon
-    #[command(name = "kill", alias = "k")]
+    #[clap(name = "kill", alias = "k")]
     KillServer,
 
     /// Close all windows, without killing the daemon
-    #[command(name = "close-all", alias = "ca")]
+    #[clap(name = "close-all", alias = "ca")]
     CloseAll,
 
     /// Prints the variables used in all currently open window
-    #[command(name = "state")]
+    #[clap(name = "state")]
     ShowState {
         /// Shows all variables, including not currently used ones
-        #[arg(short, long)]
+        #[clap(short, long)]
         all: bool,
     },
 
     /// Get the value of a variable if defined
-    #[command(name = "get")]
+    #[clap(name = "get")]
     GetVar { name: String },
 
     /// Print the names of all configured windows. Windows with a * in front of them are currently opened.
-    #[command(name = "windows")]
+    #[clap(name = "windows")]
     ShowWindows,
 
     /// Print out the widget structure as seen by eww.
     ///
     /// This may be useful if you are facing issues with how eww is interpreting your configuration,
     /// and to provide additional context to the eww developers if you are filing a bug.
-    #[command(name = "debug")]
+    #[clap(name = "debug")]
     ShowDebug,
 
     /// Print out the scope graph structure in graphviz dot format.
-    #[command(name = "graph")]
+    #[clap(name = "graph")]
     ShowGraph,
 }
 
